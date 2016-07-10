@@ -24,7 +24,7 @@ import com.firebase.client.Firebase;
 import com.firebase.ui.FirebaseListAdapter;
 import com.firebase.ui.FirebaseRecyclerAdapter;
 
-public class MainActivity extends AppCompatActivity implements AddLocationDialog.LocationAddedHandler, AdapterView.OnItemClickListener {
+public class MainActivity extends BaseActivity implements AddLocationDialog.LocationAddedHandler {
     Firebase mBaseRef, mLocationRef;
     /*ListView listView;
     FirebaseListAdapter adapter;*/
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements AddLocationDialog
         mLocationRef.push().setValue(location);
     }
 
-    //region OnClick for ListView
+    /*//region OnClick for ListView
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements AddLocationDialog
         });
         builder.create().show();
     }
-    //endregion
+    //endregion*/
 
     //region RecyclerView View Holder
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
