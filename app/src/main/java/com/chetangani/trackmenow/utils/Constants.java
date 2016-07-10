@@ -6,4 +6,5 @@ package com.chetangani.trackmenow.utils;
 public class Constants {
 
     public static final String BASE_URL = "https://trackmenow.firebaseio.com/";
+    public static final String LOCATION_URL = "https://trackmenow.firebaseio.com/location/";
 }
