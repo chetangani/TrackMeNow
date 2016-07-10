@@ -133,6 +133,7 @@ public class CreateAccountActivity extends BaseActivity implements View.OnClickL
                 /* Dismiss the progress dialog */
                 mAuthProgressDialog.dismiss();
                 showToast("Successfully created");
+                finish();
             }
 
             @Override

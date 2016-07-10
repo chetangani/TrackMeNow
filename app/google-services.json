@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "35716851949",
+    "project_id": "firebase-trackmenow"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35716851949:android:792403b56ddccea7",
+        "android_client_info": {
+          "package_name": "com.chetangani.trackmenow"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "35716851949-s1obccmkmi22gsns3fjosaa90ckn5r8i.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.chetangani.trackmenow",
+            "certificate_hash": "4B9975DA75CFB7B392C993F620EEBFECDBED5BF4"
+          }
+        },
+        {
+          "client_id": "35716851949-hjemc9al5rbfajtm3sa4v9chtq9qn3d0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5fnPNza1viYhDOz3QrUTmoTS0T8W5hX8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

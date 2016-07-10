@@ -17,7 +17,11 @@ import android.widget.Toast;
 
 import com.chetangani.trackmenow.R;
 import com.chetangani.trackmenow.ui.BaseActivity;
+import com.chetangani.trackmenow.ui.MainActivity;
+import com.chetangani.trackmenow.utils.Constants;
 import com.firebase.client.AuthData;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.UserRecoverableAuthException;
@@ -43,6 +47,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private EditText mEditTextEmailInput, mEditTextPasswordInput;
     private TextView mTextViewSignUp;
     private Button mButtonLoginWithPassword;
+    private Firebase mFirebaseRef;
 
     /**
      * Variables related to Google Login
@@ -58,6 +63,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        mFirebaseRef = new Firebase(Constants.BASE_URL);
 
         /**
          * Link layout elements from XML and setup progress dialog
@@ -152,7 +158,80 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
      * Sign in with Password provider (used when user taps "Done" action on keyboard)
      */
     public void signInPassword() {
+        String email = mEditTextEmailInput.getText().toString();
+        String password = mEditTextPasswordInput.getText().toString();
+
+        /**
+         * If email and password are not empty show progress dialog and try to authenticate
+         */
+        if (email.equals("")) {
+            mEditTextEmailInput.setError("This cannot be empty");
+            return;
+        }
+
+        if (password.equals("")) {
+            mEditTextPasswordInput.setError("This cannot be empty");
+            return;
+        }
+        mAuthProgressDialog.show();
+        mFirebaseRef.authWithPassword(email, password, new MyAuthResultHandler("password"));
     }
+
+    /**
+     * Handle user authentication that was initiated with mFirebaseRef.authWithPassword
+     * or mFirebaseRef.authWithOAuthToken
+     */
+    private class MyAuthResultHandler implements Firebase.AuthResultHandler {
+
+        private final String provider;
+
+        public MyAuthResultHandler(String provider) {
+            this.provider=provider;
+        }
+
+        /**
+         * On successful authentication call setAuthenticatedUser if it was not already
+         * called in
+         */
+        @Override
+        public void onAuthenticated(AuthData authData) {
+            mAuthProgressDialog.dismiss();
+            showToast("Login successful");
+            if (authData != null) {
+                /* Go to main activity */
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                finish();
+            }
+        }
+
+        @Override
+        public void onAuthenticationError(FirebaseError firebaseError) {
+            mAuthProgressDialog.dismiss();
+
+            /**
+             * Use utility method to check the network connection state
+             * Show "No network connection" if there is no connection
+             * Show Firebase specific error message otherwise
+             */
+            switch (firebaseError.getCode()) {
+                case FirebaseError.INVALID_EMAIL:
+                case FirebaseError.USER_DOES_NOT_EXIST:
+                    mEditTextEmailInput.setError("There was an error with your email; please check that you entered it correctly.");
+                    break;
+                case FirebaseError.INVALID_PASSWORD:
+                    mEditTextPasswordInput.setError(firebaseError.getMessage());
+                    break;
+                case FirebaseError.NETWORK_ERROR:
+                    showToast("There was a problem with the network connection.\nAre you sure you're connected to the internet?");
+                    break;
+                default:
+                    showToast(firebaseError.toString());
+            }
+        }
+    }
+
 
     /**
      * Helper method that makes sure a user is created if the user
@@ -174,7 +253,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     /**
      * Show error toast to users
      */
-    private void showErrorToast(String message) {
+    private void showToast(String message) {
         Toast.makeText(LoginActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
@@ -184,6 +263,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
      * @param token A Google OAuth access token returned from Google
      */
     private void loginWithGoogle(String token) {
+        mFirebaseRef.authWithOAuthToken("google", token, new MyAuthResultHandler("google"));
     }
 
     /**
@@ -236,7 +316,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
          * be available.
          */
         mAuthProgressDialog.dismiss();
-        showErrorToast(result.toString());
+        showToast(result.toString());
     }
 
 
@@ -265,9 +345,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         } else {
             if (result.getStatus().getStatusCode() == GoogleSignInStatusCodes.SIGN_IN_CANCELLED) {
-                showErrorToast("The sign in was cancelled. Make sure you're connected to the internet and try again.");
+                showToast("The sign in was cancelled. Make sure you're connected to the internet and try again.");
             } else {
-                showErrorToast("Error handling the sign in: " + result.getStatus().getStatusMessage());
+                showToast("Error handling the sign in: " + result.getStatus().getStatusMessage());
             }
             mAuthProgressDialog.dismiss();
         }
@@ -313,12 +393,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
             @Override
             protected void onPostExecute(String token) {
-                mAuthProgressDialog.dismiss();
                 if (token != null) {
                     /* Successfully got OAuth token, now login with Google */
                     loginWithGoogle(token);
                 } else if (mErrorMessage != null) {
-                    showErrorToast(mErrorMessage);
+                    showToast(mErrorMessage);
                 }
             }
         };
